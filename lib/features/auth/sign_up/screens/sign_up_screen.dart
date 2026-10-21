@@ -1,3 +1,7 @@
+import 'package:dio/dio.dart';
+import 'package:ecommerce_app_huma_volve/core/network/api_manager.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/data/models/signup_req_model.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/services/signup_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/custom_text_field.dart';
@@ -17,12 +21,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late final TextEditingController nameController;
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  bool isLoading = false;
+  late final ApiManager apiManager;
+  late final SignupService signupService;
 
   @override
   void initState() {
     nameController = TextEditingController();
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    apiManager = ApiManager();
+    signupService = SignupService(apiManager);
 
     super.initState();
   }
@@ -52,14 +61,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 32),
                 Text(
                   'Create Account',
-                  style: Theme.of(context).textTheme.displayLarge
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .displayLarge
                       ?.copyWith(fontSize: 32),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Sign up to get started',
-                  style: Theme.of(context).textTheme.bodyMedium
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyMedium
                       ?.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
@@ -109,18 +124,78 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 40),
                 PrimaryButton(
-                  text: 'Sign Up',
+                    isLoading: isLoading,
+                    text: 'Sign Up',
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
+                      try {
+                        setState(() {
+                          isLoading=true;
+                        });
+                        final response = await signupService.signUp(
+                          SignupReqModel(
+                            name: nameController.text.trim(),
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
+                          ),
+                        );
+
+                        if (!context.mounted) return;
+
+                        await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Success"),
+                            content: Text("Sign up successful"),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (!context.mounted) return;
+                        setState(() {
+                          isLoading=true;
+                        });
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      } on DioException catch (e) {
+                        if (!context.mounted) return;
+                       setState(() {
+                         isLoading =false;
+                       });
+                        await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Error"),
+                            content: Text(
+                              e.response?.data?['message']?.toString() ??
+                                  "Something went wrong. Please try again.",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
+
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -131,23 +206,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Navigator.pushReplacement(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                            ) => const LoginScreen(),
+                            pageBuilder: (context,
+                                animation,
+                                secondaryAnimation,) => const LoginScreen(),
                             transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
+                                (context,
+                                animation,
+                                secondaryAnimation,
+                                child,) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },

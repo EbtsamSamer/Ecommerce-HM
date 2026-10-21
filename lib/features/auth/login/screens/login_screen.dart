@@ -1,4 +1,6 @@
-
+import 'package:dio/dio.dart';
+import 'package:ecommerce_app_huma_volve/core/network/api_manager.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/login/services/login_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/custom_text_field.dart';
@@ -18,11 +20,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  late final ApiManager apiManager;
+  late final LoginService loginService;
+  bool isLoading=false;
 
   @override
   void initState() {
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    apiManager = ApiManager();
+    loginService = LoginService(apiManager);
 
     super.initState();
   }
@@ -51,14 +58,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 Text(
                   'Welcome Back!',
-                  style: Theme.of(context).textTheme.displayLarge
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .displayLarge
                       ?.copyWith(fontSize: 32),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Login to continue your shopping',
-                  style: Theme.of(context).textTheme.bodyMedium
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyMedium
                       ?.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
@@ -107,16 +120,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 PrimaryButton(
-                  text: 'Login',
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MainNavigationScreen(),
-                        ),
-                      );
+                  isLoading: isLoading,
+                    text: 'Login',
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        try {
+                          final response = await loginService.login(
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim());
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (context) =>
+                                  MainNavigationScreen()));
+                        } on DioException catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(e.toString())));
+                        }
+                      }
                     }
-                  },
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -128,23 +148,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.pushReplacement(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                            ) => const SignUpScreen(),
+                            pageBuilder: (context,
+                                animation,
+                                secondaryAnimation,) => const SignUpScreen(),
                             transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
+                                (context,
+                                animation,
+                                secondaryAnimation,
+                                child,) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
