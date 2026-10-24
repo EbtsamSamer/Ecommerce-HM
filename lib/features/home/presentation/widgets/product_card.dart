@@ -50,12 +50,12 @@ class ProductCard extends StatelessWidget {
                     tag: 'product-${productEntity.id}',
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                      child: Image.network(
-                        productEntity.images.toString(),
+                      child:Image.network(
+                        productEntity.images.isNotEmpty
+                            ? productEntity.images.first
+                            : 'https://placehold.co/300x300',
                         fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
+                      )
                     ),
                   ),
                   Positioned(

@@ -60,9 +60,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               background: Hero(
                 tag: 'product-${widget.productEntity.id}',
                 child: Image.network(
-                  widget.productEntity.images.toString(),
+                  widget.productEntity.images.isNotEmpty
+                      ? widget.productEntity.images.first
+                      : 'https://placehold.co/300x300',
                   fit: BoxFit.cover,
-                ),
+                )
               ),
             ),
           ),
