@@ -270,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                       delegate: SliverChildBuilderDelegate((context, index) {
                         return ProductCard(
-                          product: convertToProduct(products[index]),
+                          productEntity: products[index],
                         );
                       }, childCount: products.length),
                     ),
