@@ -20,26 +20,28 @@ class HomeRepoImp implements HomeRepo {
     } catch (e) {
       final error = ErrorHandler.handle(e);
 
-      return Left(
-        Failure(errorMessage: error.message),
-      );
+      return Left(Failure(errorMessage: error.message));
     }
   }
 
   @override
   Future<Either<Failure, List<ProductEntity>>> getProducts(
-    int? categoryId,
-  ) async {
+    int? categoryId, {
+    required int limit,
+    required int offset,
+  }) async {
     try {
-      final products = await homeRemoteDs.getProducts(categoryId);
+      final products = await homeRemoteDs.getProducts(
+        categoryId,
+        limit: limit,
+        offset: offset,
+      );
 
       return Right(products as List<ProductEntity>);
     } catch (e) {
       final error = ErrorHandler.handle(e);
 
-      return Left(
-        Failure(errorMessage: error.message),
-      );
+      return Left(Failure(errorMessage: error.message));
     }
   }
 }

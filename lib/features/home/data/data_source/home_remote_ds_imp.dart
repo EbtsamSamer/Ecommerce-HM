@@ -23,10 +23,18 @@ class HomeRemoteDsImp implements HomeRemoteDs {
   }
 
   @override
-  Future<List<ProductModel>> getProducts(int? categoryId) async {
+  Future<List<ProductModel>> getProducts(
+    int? categoryId,{
+    required int limit,
+    required int offset,
+  }) async {
     final response = await apiManager.dio.get(
       '${ApiEndpoints.categoriesEndpoint}/$categoryId/'
       '${ApiEndpoints.productsEndpoint}',
+      queryParameters: {
+        "limit":limit,
+        " offset":offset,
+      }
     );
 
     final List<dynamic> jsonData = response.data as List<dynamic>;
