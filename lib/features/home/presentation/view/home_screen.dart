@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:ecommerce_app_huma_volve/features/home/presentation/cubit/home_cubit.dart';
 import 'package:ecommerce_app_huma_volve/features/home/presentation/cubit/home_states.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +29,6 @@ void _onListen(){
     final pixels= scrollController.position.pixels;
     final max= scrollController.position.maxScrollExtent;
     final int triggerDistance=200;
-    print("Current position : $pixels, max :$max");
     if(pixels>=max-triggerDistance){
       context.read<HomeCubit>().loadMoreProducts();
     }

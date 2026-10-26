@@ -1,4 +1,5 @@
 import 'package:ecommerce_app_huma_volve/features/home/domain/entities/product_entity.dart';
+import 'package:ecommerce_app_huma_volve/features/home/presentation/widgets/share_product_button.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme.dart';
@@ -6,10 +7,10 @@ import '../../../core/theme.dart';
 import '../../../core/widgets/primary_button.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  // final Product product;
-  final ProductEntity productEntity;
+  final ProductEntity? productEntity;
+  final int? productId;
 
-  const ProductDetailsScreen({super.key, required this.productEntity});
+  const ProductDetailsScreen({super.key, this.productEntity, this.productId});
 
   @override
   State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
@@ -24,6 +25,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          ShareProductButton(productId:widget.productId.toString() ),
+        ],
+      ),
       backgroundColor: AppTheme.background,
       body: CustomScrollView(
         slivers: [
@@ -58,13 +64,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
-                tag: 'product-${widget.productEntity.id}',
+                tag: 'product-${widget.productEntity?.id ?? "unknown"}',
                 child: Image.network(
-                  widget.productEntity.images.isNotEmpty
-                      ? widget.productEntity.images.first
+                  (widget.productEntity?.images != null &&
+                          widget.productEntity!.images.isNotEmpty)
+                      ? widget.productEntity!.images.first
                       : 'https://placehold.co/300x300',
                   fit: BoxFit.cover,
-                )
+                ),
               ),
             ),
           ),
@@ -86,14 +93,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            widget.productEntity.title?? " ",
+                            widget.productEntity?.title ?? " ",
                             style: Theme.of(context).textTheme.headlineLarge
                                 ?.copyWith(fontSize: 28, height: 1.2),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Text(
-                          '\$${widget.productEntity.price}',
+                          '\$${widget.productEntity?.price}',
                           style: Theme.of(context).textTheme.headlineLarge
                               ?.copyWith(color: AppTheme.primary, fontSize: 24),
                         ),
@@ -107,7 +114,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      widget.productEntity.description ?? " ",
+                      widget.productEntity?.description ?? " ",
                       style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(height: 1.6, fontSize: 16),
                     ),
@@ -133,7 +140,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '${widget.productEntity.title} added to cart',
+                              '${widget.productEntity?.title} added to cart',
                             ),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
